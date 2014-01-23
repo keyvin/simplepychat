@@ -6,7 +6,9 @@ Created on Jan 20, 2014
 
 #hello GIT
 
-from tkinter import *;
+from tkinter import *
+
+from connection import *
 
 class pychatgui():
     def __init__(self):
@@ -29,14 +31,13 @@ class pychatgui():
         self.makemenu()
         self.tkframe.config(menu=self.menubar)
         self.tktext.config(state=DISABLED)
+        self.connection = ''
         self.tkframe.mainloop()
-        
+       
     def entryhandler(self, event):
-        self.tktext.config(state=NORMAL)
-        self.tktext.insert(END, self.tkentry.get()+'\n')
-        self.tktext.yview(END)
-        self.tktext.config(state=DISABLED)
-        self.tkentry.delete(0, END)
+        if self.connection:
+            self.connection.writeone(self.tkentry.get())
+            self.tkentry.delete(0, END)
         
     def makemenu(self):
         
@@ -47,11 +48,21 @@ class pychatgui():
         self.menubar.add_cascade(label="File", menu=filemenu)
 
     def connectmenu(self):
-        connection = connectdialog(self.tkframe)
-        self.tkframe.wait_window(connection.top)
-        if connection.connected == True:
-            pass
-
+        connect = connectdialog(self.tkframe)
+        self.tkframe.wait_window(connect.top)
+        if connect.connected == True:
+            self.connection = connection(connect.server, connect.port)
+            self.connection.startthread()
+            self.tkframe.after(100,self.update)
+        
+    def update(self):
+        data = self.connection.readone()
+        if data:
+            self.tktext.config(state=NORMAL)
+            self.tktext.insert(END, data+'\n')
+            self.tktext.yview(END)
+            self.tktext.config(state=DISABLED)
+        self.tkframe.after(100, self.update)
         
 class connectdialog():
     def __init__(self, parent):
