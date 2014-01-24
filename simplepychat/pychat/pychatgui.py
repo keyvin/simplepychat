@@ -79,8 +79,8 @@ class connectdialog():
         Button(self.top, text="Cancel", command=self.top.destroy).pack()
     def connectbutton(self):
         self.connected = True
-        self.server = self.sentry.get()
-        self.port = self.pentry.get()
+        self.server = self.pentry.get()
+        self.port = self.sentry.get()
         self.top.destroy()
 
 n = pychatgui()

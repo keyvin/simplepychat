@@ -32,11 +32,20 @@ class connection():
     
 def dothread(server, port, rqueue, wqueue): 
     Continue = True
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    rqueue.put("Connecting to " + server + " on port " + port)
+    s.connect((server, int(port)))
+    s.setblocking(False)
     while Continue:
         try:
             data = wqueue.get(False)
         except queue.Empty:
             data = ''
         if data:
-            print(data)
             rqueue.put(data)
+        try:
+            data = str(s.recv(1024))
+            rqueue.put(data)
+        except socket.error:
+            pass
+        
