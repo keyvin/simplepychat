@@ -6,11 +6,13 @@ Created on Jan 23, 2014
 import queue
 import _thread as thread
 import socket
-
+import time
 class connection():
-    def __init__(self, port, address):
+    def __init__(self, port, address, dnick, dname):
         self.address = address
         self.port = port
+        self.dnick = dnick
+        self.dname = dname
         self.readq = queue.Queue()
         self.writeq = queue.Queue()
     
@@ -25,19 +27,22 @@ class connection():
         self.writeq.put(data)
     
     def startthread(self):
-        thread.start_new_thread(dothread, (self.address, self.port, self.readq, self.writeq))
+        thread.start_new_thread(dothread, (self.address, self.port, self.readq, self.writeq, self.dnick, self.dname))
     
     
     
     
-def dothread(server, port, rqueue, wqueue): 
+def dothread(server, port, rqueue, wqueue, dnick, dname): 
     Continue = True
     #connect to host, socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     rqueue.put("Connecting to " + server + " on port " + port)
     s.connect((server, int(port)))
-    s.setblocking(False)
-    #set indata to an empty binary string at start
+    
+
+    s.send(b'NICK ' + bytes(dnick, 'utf-8') + b'\r\n')
+    s.send(b'USER ' + bytes(dnick, 'utf-8') + b' ' + bytes(dname, 'utf-8') + b' :pychat' + b'\r\n' )
+    s.setblocking(False)#set indata to an empty binary string at start
     indata=b''
     while Continue:
         try:
