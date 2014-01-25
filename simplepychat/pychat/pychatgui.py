@@ -57,14 +57,16 @@ class pychatgui():
         
     def update(self):
         data = self.connection.readone()
-        data = data.rstrip()
-        if data:
-            self.tktext.config(state=NORMAL)
-            self.tktext.insert(END, data+'\n')
-            self.tktext.yview(END)
-            self.tktext.config(state=DISABLED)
-        self.tkframe.after(100, self.update)
+        while data != '':
+            data = data.rstrip()
+            if data:
+                self.tktext.config(state=NORMAL)
+                self.tktext.insert(END, data+'\n')
+                self.tktext.yview(END)
+                self.tktext.config(state=DISABLED)
         
+            data = self.connection.readone()
+        self.tkframe.after(100, self.update)
 class connectdialog():
     def __init__(self, parent):
         self.connected = False
