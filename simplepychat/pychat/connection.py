@@ -42,10 +42,22 @@ def dothread(server, port, rqueue, wqueue):
         except queue.Empty:
             data = ''
         if data:
-            rqueue.put(data)
+            
+            data = data + '\r\n'
+            data = bytes(data, 'utf-8')
+            rqueue.put(str(data))
+            s.send(data)
+            print(data)
         try:
-            data = str(s.recv(1024))
-            rqueue.put(data)
+            data = s.recv(4096)
+            print (data)
+            if data==b'':
+                break
+            rqueue.put(data.decode(errors='ignore'))
+            if data[0:4] == b'PING':
+                b = s.send(b'PONG ' + data.split()[1] + b'\r\n' )
+                print (b)
+                rqueue.put(str(b'PONG ' + data.split()[1] + b'\r\n') )
         except socket.error:
             pass
         

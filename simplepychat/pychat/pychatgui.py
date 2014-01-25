@@ -57,6 +57,7 @@ class pychatgui():
         
     def update(self):
         data = self.connection.readone()
+        data = data.rstrip()
         if data:
             self.tktext.config(state=NORMAL)
             self.tktext.insert(END, data+'\n')
