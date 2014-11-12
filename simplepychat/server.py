@@ -4,7 +4,7 @@ which holds all windows, connections, and the parser for the server'''
 import queue
 import window
 import connection
-import parser
+import mparser
 class server():
 	def __init__(self, tkroot=None, hostname='', nick='', main=None ):
 		#if hostname is empty, make an empty unconnected window, and set a flag so when connecting we do 
@@ -51,7 +51,7 @@ class server():
 		#methods of the window class to send the out. The window will send all input from the user to the parser
 		#which will make the necessary callbacks in main, server, etc if necessary, send the data to the conn, etc
 		#self.parser(self, self.conn)
-		return parser.parser(self, self.conn,nick='chatter195')
+		return mparser.parser(self, self.conn,nick='chatter195')
 	def procincoming(self):
 		#check for input on the incoming queue, send it to parser which will update the windows as necessary
 		print("in callback")
