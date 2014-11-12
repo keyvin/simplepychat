@@ -13,14 +13,14 @@ import server
 import connection
 
 
-class pychatgui():
-    def __init__(self, server=None):
+class window():
+    def __init__(self, server, tkroot, channel='', parser=None):
         #connects window to parent, gets tk object, uses it as root, but as a seperate window
 		#that is non modal
 		
-		self.preferences = preferences()
+        self.preferences = preferences()
         #top level widget
-        self.tkframe = Tk()
+        self.tkframe = tkroot
         #for the scroll bar, entry, and text widget
         self.rightframe = Frame(self.tkframe)
         self.rightframe.pack(side=RIGHT, fill=BOTH, expand=YES)
@@ -37,14 +37,16 @@ class pychatgui():
         self.makemenu()
         self.tkframe.config(menu=self.menubar)
         self.tktext.config(state=DISABLED)
-        self.connection = ''
-        self.textproc = ircprocessor()
-        self.tkframe.mainloop()
-       
+        self.textproc = parser
+        self.channel = channel
+        self.parser = parser
+        
+ 
+    
     def entryhandler(self, event):
-        if self.connection:
-            command = self.textproc.parseinput(self.tkentry.get())
-            self.connection.writeone(command)
+        
+            self.parser.parseoutgoing(self, intext=self.tkentry.get())
+            
             self.tkentry.delete(0, END)
         
     def makemenu(self):
@@ -68,21 +70,16 @@ class pychatgui():
         self.tkframe.wait_window(connect.top)
         if connect.connected == True:
             self.connection = connection(connect.server, connect.port, self.preferences.nick, self.preferences.name)
-            self.connection.startthread()
-            self.tkframe.after(100,self.update)
+            #self.connection.startthread()
+           # self.tkframe.after(100,self.update)
         
-    def update(self):
-        data = self.connection.readone()
-        while data != '':
-            data = data.rstrip()
-            if data:
-                self.tktext.config(state=NORMAL)
-                self.tktext.insert(END, data+'\n')
-                self.tktext.yview(END)
-                self.tktext.config(state=DISABLED)
-        
-            data = self.connection.readone()
-        self.tkframe.after(100, self.update)
+    def writetext(self, data=''):
+        self.tktext.config(state=NORMAL)
+        self.tktext.insert(END, data+'\n')
+        self.tktext.yview(END)
+        self.tktext.config(state=DISABLED)
+
+ 
 
 class preferences():
     def __init__(self):
@@ -140,7 +137,7 @@ class connectdialog():
         self.port = self.sentry.get()
         self.top.destroy()
 
-n = pychatgui()
+
 
 
     

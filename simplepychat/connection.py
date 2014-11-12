@@ -10,36 +10,36 @@ import time
 
 
 class connection():
-    def __init__(self, port, address, dnick, dname):
+    def __init__(self, address, port, dnick='Nonick1', dname='Bbob ford', incomingq=None, outgoingq=None):
         self.address = address
         self.port = port
         self.dnick = dnick
         self.dname = dname
-        self.readq = queue.Queue()
-        self.writeq = queue.Queue()
-		return self.
+        self.incomingq = incomingq
+        self.outgoingq = outgoingq
+       
     
     def readone(self):
         try:
-            data = self.readq.get(False)
+            data = self.incomingq.get(False)
         except queue.Empty:
             data = ''
         return data
     
     def writeone(self, data):
-        self.writeq.put(data)
+        self.outgoingq.put(data)
     
     def startthread(self):
-        thread.start_new_thread(dothread, (self.address, self.port, self.readq, self.writeq, self.dnick, self.dname))
+        thread.start_new_thread(dothread, (self.address, self.port, self.incomingq, self.outgoingq, self.dnick, self.dname))
     
     
     
     
-def dothread(server, port, rqueue, wqueue, dnick, dname): 
+def dothread(server, port, incomingq, outgoingq, dnick, dname): 
     Continue = True
     #connect to host, socket
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    rqueue.put("Connecting to " + server + " on port " + port)
+    incomingq.put("Connecting to " + server + " on port " + str(port))
     s.connect((server, int(port)))
     
 
@@ -49,14 +49,14 @@ def dothread(server, port, rqueue, wqueue, dnick, dname):
     indata=b''
     while Continue:
         try:
-            outdata = wqueue.get(False)
+            outdata = outgoingq.get(False)
         except queue.Empty:
             outdata = ''
         if outdata:
             
             outdata = outdata + '\r\n'
             outdata = bytes(outdata, 'utf-8')
-            rqueue.put(str(outdata))
+            incomingq.put(str(outdata))
             s.send(outdata)
             print(outdata)
         #set received flag false so we know we haven't received anything this loop
@@ -72,7 +72,7 @@ def dothread(server, port, rqueue, wqueue, dnick, dname):
             pass
         #if we received something in the try catch
         if received:
-            print (indata)
+            #print (indata)
             #if it is an empty string then socket is dead, break out of loop, ending thread
             if indata==b'':
                 break
@@ -84,9 +84,9 @@ def dothread(server, port, rqueue, wqueue, dnick, dname):
                     if i[0:4] == 'PING':
                         b = s.send(b'PONG ' + bytes(i.split()[1], encoding='utf-8') + b'\r\n' )
                         print (b)
-                        rqueue.put(str('PONG ' + i.split()[1] + '\r\n') )
+                        incomingq.put(str('PONG ' + i.split()[1] + '\r\n') )
                     #write line to output
-                    rqueue.put(i)
+                    incomingq.put(i)
                 #clear input buffer
                 indata = b''
             else:  #was not a complete command. Continue I/O loop until command is complete
