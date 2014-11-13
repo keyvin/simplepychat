@@ -38,11 +38,13 @@ class parser():
         
         self.conn.writeone(com)
         print (com)
-    def ismessage(self, data):
+
+        def ismessage(self, data):
         return True
     def changenick(self, newnick=''):
         self.nick=newnick
     def haschannel(self, data = ''):
+        
         #does this data contain a channel?
         #we will just stub it for now
         return True
@@ -70,5 +72,4 @@ class parser():
                             win.writetext(data)   
         
             data = self.conn.readone()
-        #this needs to go in the main to update the tkinter
-        #self.tkframe.after(100, self.update)
+      

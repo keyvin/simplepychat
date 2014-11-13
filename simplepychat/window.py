@@ -72,14 +72,35 @@ class window():
             self.connection = connection(connect.server, connect.port, self.preferences.nick, self.preferences.name)
             #self.connection.startthread()
            # self.tkframe.after(100,self.update)
-        
+    def checklines(self):
+        #This function will check the number of lines compared to the global preferences and delete them as necessary. I need to add scrollback to the control as well.
+        pass
+
+    #This function will add nicks to the nick list. I need to make the nick list scrollable as well. 
+    def addnicks(self, nicks=[]):
+        pass
+
+    #deletes nicks from the nick list. To do a name change, delete then add. 
+    def delnicks(self, nicks=[]):
+        pass
+    
+    #This function writes to the screen with no options     
     def writetext(self, data=''):
         self.tktext.config(state=NORMAL)
         self.tktext.insert(END, data+'\n')
         self.tktext.yview(END)
         self.tktext.config(state=DISABLED)
 
- 
+    #write chat message puts chat text with colors nicely on the screen
+    def writemessage(nick='', message=''):
+        pass
+
+    #emotes
+    def writeemote(nick='', emote=''):
+        pass
+    #joins, quits, etc.
+    def writeservermessages(type='none', message=''):
+        pass
 
 class preferences():
     def __init__(self):
